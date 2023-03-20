@@ -1,0 +1,711 @@
+\documentclass[border=5mm, convert, usenames, dvipsnames,beamer]{standalone}
+\usetheme{Madrid}
+\usecolortheme{default}
+%Information to be included in the title page:
+\title{Sample title}
+\author{Anonymous}
+\institute{Overleaf}
+\date{2021}
+
+\usepackage[absolute,overlay]{textpos}
+
+\defbeamertemplate*{frametitle}{}[1][]
+{
+    \begin{textblock*}{12cm}(1cm,0.75cm)
+    {\color{purple} \fontsize{20}{43.2} \selectfont \insertframetitle}
+    \end{textblock*}
+    \begin{textblock*}{12cm}(1cm,2.5cm)
+    {\color{purple} \fontsize{20}{24} \selectfont \insertframesubtitle}
+    \end{textblock*}
+}
+
+
+
+\setbeamertemplate{footline}[frame number]
+\usepackage{ragged2e}
+
+\justifying
+\usepackage{lmodern}
+\usepackage{ImageMagick}
+\usepackage[utf8] {inputenc}
+\usefonttheme[onlymath]{serif}
+\usepackage[english] {label}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage[round] {natbib}
+\usepackage{color}     
+\usepackage{changepage}
+\usepackage[export]{adjustbox}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{listings}
+\usepackage[svgnames]{xcolor}
+\lstset{language=R,
+    stringstyle=\color{DarkGreen},
+    otherkeywords={0,1,2,3,4,5,6,7,8,9},
+    morekeywords={TRUE,FALSE},
+    deletekeywords={data,frame,length,as,character},
+    keywordstyle=\color{blue},
+    commentstyle=\color{teal},
+}
+
+\makeatletter
+\setbeamertemplate{frametitle}[default]{}
+\makeatother
+
+
+
+\begin{document}
+
+\begin{frame}
+\frametitle{Poisson distribution}
+
+\footnotesize
+\vspace{40}
+\noindent
+We often use the Poisson distribution to model count data. If $Y \sim Poi(\lambda)$ with $\lambda > 0$, then the PMF is given by
+
+$$
+P(Y = y) = \frac{\lambda^{y}  e^{- \lambda}}{y!}, \ \ \ y = 0,1,2,...$$
+
+
+\vspace{10}
+\noindent
+In addition, for Poisson distributed random variables, we have that $E[Y] = var(Y) = \lambda$. Eventually, we have that $\sum_{i=1}^{n} y_{i} \sim Poi(\sum_{i=1}^{n} \lambda_{i}).
+
+\vspace{10}
+\noindent
+ \includegraphics[scale=0.43,center]{image1}
+
+
+\par
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Poisson regression model}
+
+\footnotesize
+\vspace{30}
+\noindent
+Consider $n$ independent observations $y_{1},...,y_{n}$ for which we assume a Poisson distribution conditionally on a set of $p$ categorical or numerical covariates $x_{j}$, for $j = 1,..., p$. The model is given by
+
+$$
+ln \bigg( E[y_{i} \mid x_{i}] \bigg) = { \color{purple} ln \big( \lambda_{i} \big) }= \beta_{0} + \beta_{1} x_{i1} + ... + \beta_{p} x_{ip} = \bold{x}_{i}^{T} \boldsymbol{\beta}
+$$
+
+\vspace{10}
+\noindent
+with $i = 1,..., n$, with $\bold{x}_{i}^{T} = (1, x_{i1}, ..., x_{ip})^{T}$ and \boldsymbol{\beta} = ( \beta_{0} ,...,  \beta_{p}). 
+
+
+
+\vspace{10}
+\noindent
+The {\color{purple} natural link function is the log link}. It ensures that $\lambda_{i} \geq 0$. It follows that
+
+$$
+E \big[ y_{i} \mid x_{i} \big] =\lambda_{i} = e^{\beta_{0} + \beta_{1} x_{i1} + ... + \beta_{p} x_{ip}} = e^{ \bold{x}_{i}^{T} \boldsymbol{\beta}}
+$$
+
+\vspace{10}
+\noindent
+The Poisson GLM is suitable for modeling count data as response variable $Y$ when a set of assumptions are met.
+
+\par
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Parameter estimation}
+
+\footnotesize
+\vspace{30}
+\noindent
+The log-likelihood function is given by
+
+$$
+l( \bold{y},  \boldsymbol{\beta}) = \sum_{i=1}^{n} \bigg( y_{i}  \bold{x}_{i}^{T} \boldsymbol{\beta} - e^{\bold{x}_{i}^{T} \boldsymbol{\beta}}  - ln(y_{i}!)      \bigg)
+$$
+
+\vspace{10}
+\noindent
+Differentiating with respect to $\boldsymbol{\beta}$ and setting the new function equal to $0$ yields the {\color{purple} Maximum Likelihood equations }
+
+$$
+ \sum_{i=1}^{n}  \big(y_{i} - e^{\bold{x}_{i}^{T} \boldsymbol{\beta}} \big) x_{ij} = 0
+$$
+
+\noindent
+with $j = 0,..., p$ and $x_{i0} = 1.
+
+
+\vspace{10}
+\noindent
+There is{ \color{purple} no closed-form solution} for the Maximum Likelihood equations. We therefore have to resort to numerical optimization, for example the  Iteratively Weighted Least Squares (IWLS) algorithm or the Newton-Raphson algorithm to obtain estimates of the regression coefficients.
+
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Model assumptions}
+
+\footnotesize
+\vspace{30}
+\noindent
+(i) \ \ \textbf{Count response}: The response variable is a count (non-negative integers), i.e. the number of times an event occurs in an homogeneous time interval or a given space (e.g. the number of goal scored during a football game). It is suitable for grouped or ungrouped data since the sum of Poisson distributed observations is also Poisson. {\color{purple} When the reponse is a category (a ranking), we should consider a Multinomial GLM instead.}
+
+\vspace{15}
+\noindent
+(ii) \ \ \textbf{Independent events}: The counts, i.e. the events, are assumed to be independent of each other. {\color{purple} When this assumption does not hold, we should consider a Generalized Linear Mixed Model (GLMM) instead.}
+
+
+\vspace{15}
+\noindent
+(iii) \ \ \textbf{Constant variance}: The factors affecting the mean are also affecting the variance. The variance is assumed to be equal to the mean. {\color{purple}When this assumption does not hold, we should consider a Quasipoisson GLM for overdispersed (or underdispersed) data or a Negative Binomial GLM instead.}
+
+
+\end{frame}
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Parameter interpretation}
+
+\footnotesize
+\vspace{-30}
+\noindent
+(i) \ \ $\beta_{0}$ represents the change in the log of the mean when all covariates $x_{j}$ are equal to 0. Thus $e^{\beta_{0}}$ represents the change in the mean.
+
+
+\vspace{15}
+\noindent
+(ii) \ \ $\beta_{j}$, for $j >0$ represents the change in the log of the mean when $x_{j}$ increases by one unit and all other covariates are held constant. Thus $e^{\beta_{j}}$ represents the change in the mean.
+
+\end{frame}
+
+\begin{frame}[ fragile]{}
+\frametitle{Practical example}
+
+\footnotesize
+\vspace{35}
+\noindent
+We will fit a Poisson regression model to a subset of the 'Affairs' dataset.
+
+\tiny
+(after W. H. Greene)
+\par
+
+\footnotesize
+\vspace{10}
+\noindent
+There are $n= 20$ observations  and $8$ variables in the reduced dataset. The variable 'affairs' is the number of extramarital affairs in the past year and is our response variable. We will include as covariates the variables 'gender', 'age', 'yearsmarried', 'children', 'religiousness', 'education' and 'rating' in our analysis. 'religiousness' ranges from $1$ (anti) to $5$ (very) and 'rating' is a self rating of the marriage, ranging from $1$ (very unhappy) to $5$ (very happy).
+
+\par 
+
+\tiny
+\begin{lstlisting}[language=R]
+data(Affairs, package = 'AER')
+set.seed(1994)
+data <- Affairs[sample(nrow(Affairs), size = 20, replace = FALSE),-c(8)]
+head(data)
+#      affairs gender age yearsmarried children religiousness education rating
+# 295        0   male  32           10      yes             4        20      4
+# 204        1   male  42           15      yes             4        16      5
+# 1584       0 female  37           10      yes             4        16      5
+# 1682       7 female  32           15      yes             5        18      4
+# 1669       2 female  27            4       no             1        17      1
+# 645        0 female  27           10      yes             4        16      3
+
+dim(data)
+# [1] 20  8
+class(data)
+# [1] "data.frame"
+\end{lstlisting}
+\par
+\end{frame}
+
+\begin{frame}[ fragile]{}
+\frametitle{Fitted Poisson model}
+\vspace{30}
+\noindent
+
+\tiny
+\begin{lstlisting}[language=R]
+# Poisson model
+poisson.model <- glm(affairs ~ .,
+                     family = 'poisson', data = data)
+summary(poisson.model)
+
+# Deviance Residuals: 
+#   Min       1Q   Median       3Q      Max  
+# -2.3392  -0.7669  -0.4425   0.1047   1.8788  
+# 
+# Coefficients:
+#               Estimate Std. Error z value Pr(>|z|)   
+# (Intercept)    0.04201    2.58877   0.016  0.98705   
+# gendermale    -0.32727    0.60877  -0.538  0.59085   
+# age           -0.04331    0.05139  -0.843  0.39929   
+# yearsmarried   0.22417    0.11645   1.925  0.05423 . 
+# childrenyes    0.94834    0.67143   1.412  0.15782   
+# religiousness  0.68438    0.45728   1.497  0.13449   
+# education     -0.01677    0.11092  -0.151  0.87984   
+# rating        -1.17513    0.43671  -2.691  0.00713 **
+#   ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for poisson family taken to be 1)
+# 
+# Null deviance: 102.924  on 19  degrees of freedom
+# Residual deviance:  19.145  on 12  degrees of freedom
+# AIC: 60.837
+# 
+# Number of Fisher Scoring iterations: 6
+\end{lstlisting}
+\end{frame}
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Deviance and goodness-of-fit}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+The \textbf{deviance} of the model (also called G-statistic)  is given by
+
+$$
+D_{model} = 2 \sum_{i=1}^{n} \bigg( y_{i} ln\bigg( \frac{y_{i}}{\hat{\lambda}_{i}} \bigg) - (y_{i} - \hat{\lambda}_{i}) \bigg)
+$$
+
+\noindent
+where $\hat{\lambda}_{i} =  e^{ \bold{x}_{i}^{T} \boldsymbol{\hat{\beta}}}$ is the fitted value of $\lambda_{i}$.
+
+
+\vspace{3mm}
+\noindent
+The deviance can be used as a goodness-of-fit test. We test $H_{0}$: 'The model is appropriate' versus $H_{1}$: 'The model is not appropriate'. Under $H_{0}$, we have that
+
+$$
+D_{model} \sim \chi_{1-\alpha, n-(p+1)}^{2}
+$$
+
+\vspace{2mm}
+\noindent
+where $p+1$ is the number of parameters of the model and $1-\alpha$ is a quantile of the $\chi^{2}$ distribution.
+\par 
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# p-value of Residual deviance goodness-of-fit test
+1 - pchisq(deviance(poisson.model), df = poisson.model$df.residual)
+# [1] 0.08507918
+\end{lstlisting}
+\par
+
+\footnotesize
+\vspace{2mm}
+\noindent
+{\color{purple} Our model does not fit the data very well.} Since our p-value is $0.085$, $H_{0}$ is just not rejected.
+
+\par
+\end{frame}
+
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Pearson goodness-of-fit}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+The \textbf{Pearson goodness-of-fit statistic}  is given by
+
+$$
+X^{2} = \sum_{i=1}^{n} \frac{(y_{i} -\hat{ \lambda}_{i})^{2}}{\hat{\lambda}_{i}}
+$$
+
+\noindent
+where $\hat{\lambda}_{i} =  e^{ \bold{x}_{i}^{T} \boldsymbol{\hat{\beta}}}$ is the fitted value of $\lambda_{i}$.
+
+
+\vspace{3mm}
+\noindent
+ We test $H_{0}$: 'The model is appropriate' versus $H_{1}$: 'The model is not appropriate'. Under $H_{0}$, we have that
+
+$$
+X^{2} \sim \chi_{1-\alpha, n-(p+1)}^{2}
+$$
+
+\vspace{2mm}
+\noindent
+where $p+1$ is the number of parameters of the model and $1-\alpha$ is a quantile of the $\chi^{2}$ distribution.
+\par 
+
+\tiny
+\begin{lstlisting}[language=R]
+# Pearson's goodness-of-fit
+Pearson <- sum((data$affairs - poisson.model$fitted.values)^2 
+               / poisson.model$fitted.values)
+1 - pchisq(Pearson, df = poisson.model$df.residual)
+# [1] 0.1053663
+\end{lstlisting}
+\par
+
+\footnotesize
+\vspace{2mm}
+\noindent
+{\color{purple}The fit is not much better.} Our p-value is $0.1054$ and $H_{0}$ is not rejected.
+
+\par
+\end{frame}
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Checking $E[Y] = var(Y)$ assumption}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+The variance of $y_{i}$ is approximated by $(y_{i} - \hat{\lambda}_{i})^{2}$. From the first graph we can see that the range of the variance differs from the range of the mean. Moreover, from the second graph, we see that the residuals show some kind of pattern. {\color{purple}$E[Y] = var(Y)$ seems not to hold.} Let us examine the dispersion of the data and try a Quasipoisson in case of overdispersion.
+
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Checking mean = variance assumption
+lambdahat <-fitted(poisson.model)
+par(mfrow=c(1,2), pty="s")
+plot(lambdahat,(data$affairs-lambdahat)^2,
+     xlab=expression(hat(lambda)), ylab=expression((y-hat(lambda))^2 ))
+plot(lambdahat, resid(poisson.model,type="pearson"), 
+     xlab=expression(hat(lambda)), ylab="Pearson Residuals") 
+\end{lstlisting}
+\par
+
+\vspace{-5}
+\noindent
+ \includegraphics[scale=0.35,center]{image2}
+
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Assessing overdispersion}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+The variance of $Y$ must be somewhat proportional to its mean. We can write
+
+$$
+var(Y) = E[Y] = { \color{purple} \phi} \lambda
+$$
+
+\noindent
+where {\color{purple}$\phi$ is a scale parameter of dispersion} and is equal to $1$ if the equality $E[Y] = var(Y)$ holds. If $\phi > 1$, the data are \textbf{overdispersed} and if $\phi < 1$, the data are underdispersed. If a Poisson model is fitted under overdispersion of the response, then the standard errors of the estimated coefficients are underestimated. The scale parameter $\phi$ can be estimated as
+
+$$
+\hat{\phi} = \frac{\sum_{i=1}^{n} \frac{(y_{i} -\hat{ \lambda}_{i})^{2}}{\hat{\lambda}_{i}}}{n-(p+1)} = \frac{X^{2}}{n-(p+1)}
+$$
+\noindent
+\par
+
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Estimated dispersion parameter
+Pearson / poisson.model$df.residual
+# [1] 1.529472
+\end{lstlisting}
+\par
+
+\footnotesize
+\noindent
+The dispersion parameter is roughly equal to $1.53$ for our data. Let us try a Quasipoisson regression model.
+\par
+
+\end{frame}
+
+\begin{frame}[ fragile]{}
+\frametitle{Fitted Quasipoisson model}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+The fitted Quasipoison model yields the following R output. However, the fit seems not to have improved based on the deviance goodness-of-fit test.
+
+\par
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Quasipoisson model
+quasipoisson.model <- glm(affairs ~ .,
+                          family = 'quasipoisson', data = data)
+summary(quasipoisson.model)
+
+# Coefficients:
+#               Estimate Std. Error t value Pr(>|t|)  
+# (Intercept)    0.04201    3.20159   0.013   0.9897  
+# gendermale    -0.32727    0.75287  -0.435   0.6715  
+# age           -0.04331    0.06355  -0.682   0.5085  
+# yearsmarried   0.22417    0.14402   1.557   0.1455  
+# childrenyes    0.94834    0.83037   1.142   0.2757  
+# religiousness  0.68438    0.56552   1.210   0.2495  
+# education     -0.01677    0.13718  -0.122   0.9047  
+# rating        -1.17513    0.54008  -2.176   0.0503 .
+# ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for quasipoisson family taken to be 1.529477)
+
+
+# p-value of Residual deviance goodness-of-fit test
+1 - pchisq(deviance(quasipoisson.model), df = quasipoisson.model$df.residual)
+# [1] 0.08507918
+\end{lstlisting}
+\par
+
+
+\end{frame}
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Variable selection using BIC}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+Some variables may not be relevant to the model or have low explanatory power. \textbf{Stepwise model selection} provides one possible solution to select our covariates based on Akaike Information Criterion (AIC) or {\color{purple}Bayesian Information Criterion (BIC)} reduction (not available for Quasipoisson models).
+
+\par
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# variable selection using BIC
+library(MASS)
+stepAIC(poisson.model, direction = 'both', k = log(dim(data)[1]))
+# Step:  AIC=61.42
+# affairs ~ yearsmarried + children + religiousness + rating
+# 
+#                 Df Deviance    AIC
+# <none>               20.753 61.423
+# + age            1   19.461 63.128
+# - children       1   25.501 63.176
+# + gender         1   19.879 63.546
+# + education      1   20.750 64.417
+# - yearsmarried   1   32.187 69.862
+# - religiousness  1   32.965 70.640
+# - rating         1   57.142 94.817
+\end{lstlisting}
+\par
+
+
+\footnotesize
+\noindent
+It appears that the variables  'yearsmariried', 'children', 'religiousness' and 'rating' are the most relevant to our analysis. The next step is to select the best Quasipoisson model between one including all covariates and one for which only those four covariates are incorporated in the model.
+\par
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Model selection using Crossvalidation}
+
+\footnotesize
+\vspace{15mm}
+\noindent
+We will select the best model in terms of predictions using {\color{purple}leave-one-out Crossvalidation (LOOCV)}. The model with the lowest Root Mean Squared Error (RMSE) will be preferred. 
+
+\par
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Leave-one-out crossvalidation (LOOCV)
+pred.cv.mod_1 <- pred.cv.mod_2 <- numeric(dim(data)[1])
+for(i in 1:dim(data)[1]) {
+  mod_1 = glm(affairs ~ .,
+              family = 'quasipoisson', data = data, subset = -i)
+  mod_2 = glm(affairs ~ children + yearsmarried + religiousness + rating,
+              family = 'quasipoisson', data = data, subset = -i)
+  pred.cv.mod_1[i] = predict.glm(mod_1, data[i,], type = 'response' )
+  pred.cv.mod_2[i] = predict.glm(mod_2, data[i,], type = 'response')
+}
+
+error.mod_1 = (1/dim(data)[1]) * sum((data$affairs - pred.cv.mod_1)^2) 
+error.mod_2 = (1/dim(data)[1]) * sum((data$affairs - pred.cv.mod_2)^2) 
+
+# Root Mean Squared Error (RMSE)
+sqrt(c(error.mod_1, error.mod_2))
+# [1] 59196.342   337.297
+\end{lstlisting}
+\par
+
+\footnotesize
+\noindent
+{\color{purple}Clearly, the model with four covariates yields better predictions than the complete model and should be preferred.} However, the RMSE remains relatively large indicating potential outliers in the dataset.
+\par
+\end{frame}
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Diagnostic plots}
+
+\footnotesize
+\vspace{10mm}
+\noindent
+
+\par
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Diagnostic plots
+par(mfrow = c(2,3))
+plot(quasipoisson.model.2, which = 1:6)
+\end{lstlisting}
+\par
+
+\vspace{-5}
+\noindent
+ \includegraphics[scale=0.42,center]{image3}
+
+
+\footnotesize
+\noindent
+Based on the {\color{purple}Cook's distance}, the observation $1218$ appears to be atypical and have a strong influence on the parameter estimates as well as on the predictions. This observation should be removed.
+\par
+
+\end{frame}
+
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Final model}
+
+\footnotesize
+\vspace{10mm}
+\noindent
+
+\par
+
+
+\tiny
+\begin{lstlisting}[language=R]
+# Final model
+quasipoisson.model.3 = glm(affairs ~ children + yearsmarried + religiousness + rating,
+              family = 'quasipoisson', data = data2, maxit = 100)
+summary(quasipoisson.model.3)
+
+# Coefficients:
+#                 Estimate Std. Error t value Pr(>|t|)    
+#   (Intercept)   -0.14080    0.70522  -0.200 0.844619    
+#   childrenyes   -2.74742    1.10230  -2.492 0.025841 *  
+#   yearsmarried   0.30447    0.07101   4.288 0.000751 ***
+#   religiousness  1.64490    0.39165   4.200 0.000891 ***
+#   rating        -2.03423    0.39565  -5.141 0.000150 ***
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# p-value of Residual deviance goodness-of-fit test
+1 - pchisq(deviance(quasipoisson.model.3), df = quasipoisson.model.3$df.residual)
+# [1] 0.667648
+
+# Pearson's goodness-of-fit
+Pearson <- sum((data2$affairs - quasipoisson.model.3$fitted.values)^2 
+               / quasipoisson.model.3$fitted.values)
+1 - pchisq(Pearson, df = quasipoisson.model.3$df.residual)
+# [1] 0.7263845
+\end{lstlisting}
+\par
+
+
+\footnotesize
+\noindent
+Once the outlier has be removed, {\color{purple}the fit is much better} and the standard errors are much lower compared to the parameter estimates. This is our best model.
+\par
+
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}[ fragile]{}
+\frametitle{Conclusions}
+
+\footnotesize
+\vspace{40}
+\noindent
+(i) \ \ The problems of overdispersion, covariate selection and influence of outliers have been addressed. Our final Quasipoisson model is a good fit for the data. About $86 \%$ of the deviance is explained by the model.
+
+
+
+\footnotesize
+\vspace{8}
+\noindent
+(ii) \ \ The level of religiousness and the number of years of marriage seem to be positively related to the average number of affairs, whereas having children and a happy self rated marriage seem to be negatively related to the average number of affairs. Caution however since the dataset only contains 19 observations.
+
+
+
+\vspace{8}
+\noindent
+(iii) \ \ If an individual has one child or more, the change in the mean response given all other covariates held constant is  $e^{-2.75} \approx 0.064$, hence {\color{purple}a decrease of $93.6 \%$ of the average number of affairs in the past year.}
+
+
+\vspace{8}
+\noindent
+(iv) \ \ For one more year of marriage, the change in the mean response given all other covariates held constant is  $e^{0.304} \approx 1.36$, hence {\color{purple}an increase of $36 \%$ of the average number of affairs in the past year.}
+
+
+\vspace{8}
+\noindent
+(v) \ \ When the self rating of the marriage changes from unhappy to happy, the change in the mean response given all other covariates held constant is  $e^{-2.034} \approx 0.13$, hence {\color{purple}a decrease of $87 \%$ of the average number of affairs in the past year.}
+
+\par
+
+\end{frame}
+\end{frame}
+
+\end{document}
